@@ -28,8 +28,8 @@ def list_contacts():
 @app.route('/add', methods=['GET', 'POST'])
 def add_contact():
     form = ContactForm()
-    # if form.validate_on_submit():
-    if not form.validate_on_submit():  # This will always fail validation
+    if form.validate_on_submit():
+    #if not form.validate_on_submit():  # This will always fail validation
         contact = Contact(
             name=form.name.data,
             phone=form.phone.data,
@@ -56,7 +56,7 @@ def update_contact(id):
         contact.phone = form.phone.data
         contact.email = form.email.data
         contact.type = form.type.data
-        db.session.commit()
+        # db.session.commit() #############################################################
         return redirect(url_for('list_contacts'))
     
     return render_template('update_contact.html', form=form, contact=contact)
@@ -86,7 +86,7 @@ def create_contact():
     data = request.get_json()
     
     if not all(k in data for k in ('name', 'phone', 'type')):
-        return jsonify({'error': 'Missing required fields'}), 400
+        return jsonify({'error': 'Missing required fields'}), 304 ########################################
         
     contact = Contact(**data)
     try:
