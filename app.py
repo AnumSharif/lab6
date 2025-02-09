@@ -29,6 +29,7 @@ def list_contacts():
 def add_contact():
     form = ContactForm()
     if form.validate_on_submit():
+    #if not form.validate_on_submit():  # This will always fail validation
         contact = Contact(
             name=form.name.data,
             phone=form.phone.data,
@@ -37,6 +38,7 @@ def add_contact():
         )
         try:
             db.session.add(contact)
+            # Introduce a bug by skipping commit
             db.session.commit()
             flash('Contact added successfully!', 'success')
             return redirect(url_for('list_contacts'))
@@ -120,6 +122,30 @@ def delete_contact_api(id):
         db.session.delete(contact)
         db.session.commit()
     return '', 204
+
+def test_add_contact_success(client):
+    response = client.post('/add', data={
+        'name': 'John Doe',
+        'phone': '1234567890',
+        'email': 'john@example.com',
+        'type': 'Work'
+    }, follow_redirects=True)
+    assert b'Contact added successfully!' in response.data  # Expecting success flash message
+
+def test_add_contact_duplicate_phone(client):
+    client.post('/add', data={
+        'name': 'Jane Doe',
+        'phone': '9876543210',
+        'email': 'jane@example.com',
+        'type': 'Personal'
+    })
+    response = client.post('/add', data={
+        'name': 'Another Jane',
+        'phone': '9876543210',
+        'email': 'another.jane@example.com',
+        'type': 'Personal'
+    }, follow_redirects=True)
+    assert b'Error adding contact. Phone number might be duplicate.' in response.data
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001) 
