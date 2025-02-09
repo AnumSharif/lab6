@@ -28,8 +28,8 @@ def list_contacts():
 @app.route('/add', methods=['GET', 'POST'])
 def add_contact():
     form = ContactForm()
-    if form.validate_on_submit():
-    #if not form.validate_on_submit():  # This will always fail validation
+    # if form.validate_on_submit():
+    if not form.validate_on_submit():  # This will always fail validation
         contact = Contact(
             name=form.name.data,
             phone=form.phone.data,
